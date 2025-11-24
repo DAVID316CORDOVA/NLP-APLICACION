@@ -28,8 +28,18 @@ from sentence_transformers import SentenceTransformer
 import json
 
 # ===== Rutas base =====
-BASE_DIR = Path(r"C:\Users\DAVID\Desktop\etl_lambdas_aws\nlp\backend")
+# BASE_DIR = Path(r"C:\Users\DAVID\Desktop\etl_lambdas_aws\nlp\backend")
+# MODELS_DIR = BASE_DIR / "models"
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 MODELS_DIR = BASE_DIR / "models"
+
+
+
+
+
+
+
 
 # ===== Cargar Modelo 1 (TF-IDF + LogReg) =====
 TFIDF_MODEL_PATH = MODELS_DIR / "model_tfidf_logreg.pkl"
@@ -63,7 +73,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ========================
+# SERVIR FRONTEND (si existe)
+# ========================
+from fastapi.staticfiles import StaticFiles
 
+frontend_dir = BASE_DIR / "frontend" / "build"
+
+if frontend_dir.exists():
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
 
 
 
@@ -117,3 +135,4 @@ def predict(payload: NewsIn, model: Literal["tfidf", "sbert"] = Query("tfidf")):
 
     else:
         raise HTTPException(status_code=400, detail="Parámetro 'model' inválido. Usa 'tfidf' o 'sbert'.")
+
